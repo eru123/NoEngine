@@ -1,0 +1,21 @@
+{
+    "name": "eru123/noengine",
+    "description": "General Purpose PHP Library",
+    "type": "library",
+    "require": {
+        "php": "^7.2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jericho Aquino",
+            "email": "yeoligoakino@gmail.com"
+        }
+    ],
+    "autoload" : {
+        "psr-4":{
+            "NoEngine\\":"src/"
+        }
+    }
+}
+
