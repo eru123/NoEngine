@@ -1,9 +1,8 @@
 <?php
 
 
-namespace RChive;
+namespace NoEngine;
 
-use NoEngine\NoEngine;
 
 class RChive extends NoEngine{
 

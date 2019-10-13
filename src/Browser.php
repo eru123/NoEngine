@@ -1,6 +1,6 @@
 <?php
 
-namespace Browser;
+namespace NoEngine;
 
 class Browser {
 	protected $accept;

@@ -1,6 +1,6 @@
 <?php
 
-namespace BloCrypt;
+namespace NoEngine;
 
 class BloCrypt {
 	//PHP5+

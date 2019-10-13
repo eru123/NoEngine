@@ -1,8 +1,7 @@
 <?php
 
-namespace FrecBase;
+namespace NoEngine;
 
-use NoEngine\NoEngine;
 
 class FrecBase extends NoEngine {
 

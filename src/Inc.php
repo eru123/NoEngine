@@ -2,7 +2,6 @@
 
 namespace Inc;
 
-use NoEngine\NoEngine;
 
 class Inc extends NoEngine {
 	final static function php(string $f,$d = null){

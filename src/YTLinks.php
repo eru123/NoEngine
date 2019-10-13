@@ -1,8 +1,6 @@
 <?php
 
-namespace YTLinks;
-
-use NoEngine\NoEngine;
+namespace NoEngine;
 
 class YTLinks extends NoEngine {
     private $storage_dir;

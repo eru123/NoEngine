@@ -1,8 +1,7 @@
 <?php
 
-namespace Header;
+namespace NoEngine;
 
-use NoEngine\NoEngine;
 
 class Header extends NoEngine {
 	public function app(string $m){
