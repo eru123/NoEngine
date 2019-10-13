@@ -3,11 +3,18 @@ General Purpose PHP Libary
 
 # Installation
 
-### Via Composer
+### Insatll Via Composer
 ```bash
 composer require eru123/noengine
 ```
+### Including to your project
+```php
+<?php
 
+include_once(__DIR__.'vendor/autoload.php');
+
+
+```
 # Usage
 
 ### Archive
