@@ -3,20 +3,15 @@ General Purpose PHP Libary
 
 # Installation
 
-## Via Composer
+### Via Composer
 ```bash
 composer require eru123/noengine
 ```
 
-## Via Manual Installation
-```php
-require_once('NoEngine.php');
-```
 # Usage
 
-## Archive
+### Archive
 
-Archiving Files and Directory
 ```php
 use NoEngine\RChive;
 
@@ -37,8 +32,7 @@ RChive::D('archives/file.txt.ne') // unarchive file in current directory
 RChive::D('archives/file.txt.ne','text files') // unarchive file in 'text files' directory
 
 ```
-## File System
-NoEngine File System
+### File System
 ```php
 use NoEngine\NoEngine;
 
@@ -69,7 +63,7 @@ NoEngine::get_ext('path/to/file.txt',NoEngine::get_ext('path/to/file.txt')); //r
 //File Search
 NoEngine::index('txt','dir'); //returns an array of path of all text file in the directory
 ```
-## Internet Protocol
+### Internet Protocol
 ```php
 use NoEngine\NoEngine;
 
@@ -79,7 +73,7 @@ NoEngine::get_ip(); //return your ip address
 //validates an IP Address
 NoEngine::validate_ip('127.0.0.1'); //returns true
 ```
-## Database
+### Database
 ```php
 use NoEngine\FrecBase;
 
@@ -178,8 +172,8 @@ $db->optimize(); //optimize database, decrease disk size.
 $db->destroy(); //Deletes the entire database including users account
 ```
 
-## Cryptography
-### Base64
+### Cryptography
+Base64
 ```php
 use NoEngine\NoEngine;
 
@@ -198,7 +192,7 @@ NoEngine::se('Plain text',5); //returns "Vm14V2EwNUhSa2hTYkdoUFVqSlNjbFZxUmxwTlJ
 NoEngine::sd('Vm14V2EwNUhSa2hTYkdoUFVqSlNjbFZxUmxwTlJuQkdVbFJzVVZWVU1Eaz0=',5); //returns "Plain text"
 
 ```
-### Binary
+Binary
 ```php
 
 use NoEngine\BloCrypt;
@@ -209,7 +203,7 @@ BloCrypt::A('plain text','private key'); //returns a string in binary format
 //Decrypt
 BloCrypt::A('Encrypted Binary String', 'private key'); //returns a plain text string
 ```
-### NoEngine Encryption
+NoEngine Encryption
 ```php
 use NoEngine\BloCrypt;
 
