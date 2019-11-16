@@ -22,17 +22,18 @@ class BloCrypt {
 			return sha1(uniqid());
 		}
 	}
-	public static function A($str, $key = NULL){
+	public static function A($str, $key = 'NoEngine'){
 		$key = $key ?: static::get();
 		for ($i = 0; $i < strlen($str); $i++) {
 			$str[$i] = $str[$i] ^ $key[$i % strlen($key)];
 		}
 		return $str;
 	}
-	public static function E($str, $key = NULL){
+	public static function E($str, $key = 'NoEngine'){
+		
 		return base64_encode(static::A($str, $key));
 	}
-	public static function D($str, $key = NULL){
+	public static function D($str, $key = 'NoEngine'){
 		return static::A(base64_decode($str), $key);
 	}
 }

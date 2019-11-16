@@ -246,10 +246,12 @@ class FrecBase extends NoEngine {
 				return self::ra_search($b,$this->read('row'));
 			} else {
 				$data = self::data($tb);
-				foreach ($data['row'] as $k => $v)
-					foreach ($v as $vk => $vv)
-						$data['row'][$k][$vk] = urldecode($vv);
-				return $data['row'];
+				if (count($data) > 0) {
+					foreach ($data['row'] as $k => $v)
+						foreach ($v as $vk => $vv)
+							$data['row'][$k][$vk] = urldecode($vv);
+					return $data['row'];
+				}
 			}
 		} elseif ($m == 'pk') {
 			$data = self::data($tb);
@@ -312,6 +314,7 @@ class FrecBase extends NoEngine {
 			//b = update
 			$row = $this->read('row','where',$a);
 			$row = self::ra_first_row($row);
+			$col = $this->read('col');
 			$fk = $this->read('fk');
 			$pk = $this->read('pk');
 			$id = $row[$pk];
@@ -324,8 +327,19 @@ class FrecBase extends NoEngine {
 			}
 			$myId = array($pk=>$id);
 			$data = array_merge($row,$b);
-			//var_dump($data);
-			$data = json_encode($data);
+			foreach ($data as $k => $v) {
+				$data[$k] = urlencode($v);
+			}
+			$cols = array_merge([$pk],$fk,$col);
+			$res = [];
+			foreach ($cols as $col) {
+				if (isset($data[$col])) {
+					$res[$col] = $data[$col];
+				} else {
+					$res[$col] = "";
+				}
+			}
+			$data = json_encode($res);
 			$res = self::_fwrite($tb, "\$data['row'][$id] = json_decode('$data',true);\n");
 			if ($res)
 				return TRUE;

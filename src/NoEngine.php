@@ -70,15 +70,17 @@ class NoEngine {
 		if ($m == 'a') {
 			if (file_exists($f)) {
 	    		$handle =  fopen($f, "a" ) ;
-		        return fwrite($handle,$data);
+		        $res = fwrite($handle,$data);
 		        fclose ($handle);
-	    	} else return self::_fwrite($f,'w',$data);
+		        return $res;
+	    	} else return self::_fwrite($f,$data,'w');
 	    } elseif ($m == 'w') {
 	    	if (file_exists($f)) unlink($f);
 	    	touch($f);
 	        $handle =  fopen($f, "w" ) ;
-	        return fwrite($handle,$data);
-	        fclose ($handle);
+	        $res = fwrite($handle,$data);
+		    fclose ($handle);
+		    return $res;
 	    }
 	}
 	final static function youtube_dl(string $link){
@@ -135,7 +137,7 @@ class NoEngine {
 		return self::autobits($size);
 	}
 	final static function index($t,$d=null){
-		$d = $d ?? $_SERVER['DOCUMENT_ROOT'];
+		$d = $d ?? __DIR__;
 		$i = self::index_dir($d);
 		$tmp = array();
 		$t = $t = self::xpl_ra_map(',','trim',$t);
@@ -155,6 +157,24 @@ class NoEngine {
 		return $res;
 	}
 	//Array
+	final static function ra_rem($key, array $arr){
+		$r = [];
+		$kf = self::xpl_ra_map(',','trim',$key);
+		if (count($kf) > 1) {
+			$s = $arr;
+			foreach ($kf as $rk) {
+				$s = self::ra_rem($rk,$arr);
+			}
+			$r = $s;
+		} else {
+			foreach ($arr as $k => $v){
+				if ($key != $k) {
+					$r[$k] = $v;
+				}
+			}
+		}
+		return $r;
+	}
 	final static function ra2str($a,$ks='\'',$vs='\''){
 		if (!is_array($a)) return FALSE;
 		$r='';
@@ -325,7 +345,7 @@ class NoEngine {
 	}
 	final static function sort_by_keys(array $a){
 		$h = $r = array();
-		foreach ($a as $k => $v) $h[] = $sk;
+		foreach ($a as $k => $v) $h[] = $k;
 		sort($h);
 		foreach ($h as $k => $v) $r[$v] = $a[$v];
 		return $r;
@@ -395,10 +415,10 @@ class NoEngine {
 
 	}
 	//Time
-	final static function ms() {
+	final static function ms() {// get time in millisecods
 	    $mt = explode(' ', microtime());
-	    return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000));
-	}
+	    return ((int)$mt[1]) * 1000 + ((int)round($mt[0] * 1000)); 
+	} 
 	final static function ms2sec(int $ms){
 		return ($ms/1000);
 	}
@@ -410,6 +430,9 @@ class NoEngine {
 	}
 	final static function d2sec(int $d){
 		return ($d*24*60*60);
+	}
+	final static function m2sec(int $m){
+		return ($m*30*24*60*60);
 	}
 	final static function y2sec(int $y){
 		return ($y*365*24*60*60);
@@ -434,6 +457,30 @@ class NoEngine {
 	}
 	final static function sec2ly(int $sec){
 		return ($sec/366/24/60/60);
+	}
+	final static function dts(){
+
+		return date("m d Y H:i:s");
+	}
+	final static function dts_diff($old){
+		//old param must be a result of dts() function
+		//date format must be "m d Y H:i:s"
+		$new 	= self::dts();
+		$od 	= explode(' ', $old);
+		$ot 	= explode(':', $od[3]);
+		$nd 	= explode(' ', $new);
+		$nt 	= explode(':', $nd[3]);
+
+		$res 	= 0;
+
+		$res 	+= ($nd[2] > $od[2]) ? self::y2sec	 ($nd[2] - $od[2]) : 0;
+		$res 	+= ($nd[0] > $od[0]) ? self::m2sec 	 ($nd[0] - $od[0]) : 0;
+		$res 	+= ($nd[1] > $od[1]) ? self::d2sec 	 ($nd[1] - $od[1]) : 0;
+		$res 	+= ($nt[0] > $ot[0]) ? self::hr2sec  ($nt[0] - $ot[0]) : 0;
+		$res 	+= ($nt[1] > $ot[1]) ? self::min2sec ($nt[1] - $ot[1]) : 0;
+		$res 	+= ($nt[2] > $ot[2]) ? 				 ($nt[2] - $ot[2]) : 0;
+
+		return $res;
 	}
 	//Bytes and bits
 	final static function autobits($bits){
@@ -600,6 +647,47 @@ class NoEngine {
 	final static function clean(string $str){
 		$str = str_replace("\\", "\\\\", $str);
 		return str_replace("'", "\'", $str);
+	}
+	final static function toAlpha($data){
+	    $alphabet =   array('a','b','c','d','e',
+	    					'f','g','h','i','j',
+	    					'k','l','m','n','o',
+	    					'p','q','r','s','t',
+	    					'u','v','w','x','y',
+	    					'z'
+	    					);
+	    $alpha_flip = array_flip($alphabet);
+	    if($data <= 25){
+	      return $alphabet[$data];
+	    }
+	    elseif($data > 25){
+	      $dividend = ($data + 1);
+	      $alpha = '';
+	      $modulo;
+	      while ($dividend > 0){
+	        $modulo = ($dividend - 1) % 26;
+	        $alpha = $alphabet[$modulo] . $alpha;
+	        $dividend = floor((($dividend - $modulo) / 26));
+	      } 
+	      return $alpha;
+	    }
+	}
+	final static function toNum($data) {
+	    $alphabet = array( 'a', 'b', 'c', 'd', 'e',
+	                       'f', 'g', 'h', 'i', 'j',
+	                       'k', 'l', 'm', 'n', 'o',
+	                       'p', 'q', 'r', 's', 't',
+	                       'u', 'v', 'w', 'x', 'y',
+	                       'z'
+	                       );
+	    $alpha_flip = array_flip($alphabet);
+	    $return_value = -1;
+	    $length = strlen($data);
+	    for ($i = 0; $i < $length; $i++) {
+	        $return_value +=
+	            ($alpha_flip[$data[$i]] + 1) * pow(26, ($length - $i - 1));
+	    }
+	    return $return_value;
 	}
 	//Math
 	final static function int_diff(int $a){

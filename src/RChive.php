@@ -61,7 +61,6 @@ class RChive extends NoEngine{
 				
 			return TRUE;
 		}
-
 		
 		return FALSE;
 	}
