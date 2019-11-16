@@ -126,7 +126,7 @@ $db->update('tb','newtablename'); //rename the selected table returns true if ne
 //Delete Table
 $db->delete('tb'); //deletes the selected table
 
-//NOTE: In naming Database,Tables,Columns,Foreign Keys and Primary Keys Must be a Word, Only AlphaNumeric Characters is Allowed, No Spaces
+//NOTE: In naming Database,Tables,Columns,Foreign Keys and Primary Keys Must be a Word case, Only AlphaNumeric Characters is Allowed, No Spacing,tabs or new lines
 
 //Updating Column
 $db->update('col','newCol1,newCol2,newCol3,newCol4'); //updates columns of selected table
@@ -144,15 +144,15 @@ $db->read('row'); //returns an array of all rows
 *      [col2] = "data here"
 *   )
 *    [2] => array(
-*      [id] => 1
-*     [col1] = "data here"
+*      [id] => 2
+*      [col1] = "data here"
 *      [col2] = "data here"
 *    )
 *  )
 **/
 
 //Read Specific row
-$db->read('row',['id'=>1]); //returns an array of row with an id of 1
+$db->read('row','where',['id'=>1]); //returns an array of row with an id of 1
 /**
 *  array(
 *    [id] => 1
@@ -160,6 +160,9 @@ $db->read('row',['id'=>1]); //returns an array of row with an id of 1
 *    [col2] = "data here"
 *  )
 **/
+
+//Update row
+$db->update('data',['id'=>1],['col1'=>'new data']); //updates col1 where id is 1
 
 //Delete Row
 $db->delete('data',['id'=>1]); //deletes a row with an id of 1
@@ -178,7 +181,6 @@ $db->optimize(); //optimize database, decrease disk size.
 //Destroy Database
 $db->destroy(); //Deletes the entire database including users account
 ```
-
 ### Cryptography
 Base64
 ```php
@@ -192,11 +194,14 @@ use NoEngine\NoEngine;
 * level - non zero integer, any positive integer, default value is 1, this will be used in decrypting
 **/
 
+$text = 'Plain text';
+$level = 5; //Optional, Default value is 1
+
 //Encryting
-NoEngine::se('Plain text',5); //returns "Vm14V2EwNUhSa2hTYkdoUFVqSlNjbFZxUmxwTlJuQkdVbFJzVVZWVU1Eaz0="
+$encrypt = NoEngine::se($text,$level); //returns "Vm14V2EwNUhSa2hTYkdoUFVqSlNjbFZxUmxwTlJuQkdVbFJzVVZWVU1Eaz0="
 
 //Decrypting
-NoEngine::sd('Vm14V2EwNUhSa2hTYkdoUFVqSlNjbFZxUmxwTlJuQkdVbFJzVVZWVU1Eaz0=',5); //returns "Plain text"
+$decrypt = NoEngine::sd($encrypt,$level); //returns "Plain text"
 
 ```
 Binary
@@ -204,20 +209,37 @@ Binary
 
 use NoEngine\BloCrypt;
 
+$key = 'private key';
+$text = 'plain text';
+
 //Encrypt
-BloCrypt::A('plain text','private key'); //returns a string in binary format
+$encrypt = BloCrypt::A($text,$key); //returns a string in binary format
 
 //Decrypt
-BloCrypt::A('Encrypted Binary String', 'private key'); //returns a plain text string
+$decrypt = BloCrypt::A($encrypt,$key); //returns a 'plain text' string
 ```
 NoEngine Encryption
 ```php
 use NoEngine\BloCrypt;
 
+$key = 'private key';
+$text = 'Plain text';
+
 //Encrypt
-BloCrypt::E('Plain text','private key'); //returns "IB4IHw9UEUUTEQ=="
+$encrypted = BloCrypt::E($text,$key); //returns "IB4IHw9UEUUTEQ=="
 
 //Decrypt
-BloCrypt::D('IB4IHw9UEUUTEQ==','private key'); //returns "Plain text"
+$decrypt = BloCrypt::D($encrypted,$key); //returns "Plain text"
 ```
+Password Hashing
+```php
+use NoEngine\NoEngine;
 
+//Encrypt Password
+$key = "private key";
+$password = "Your Password";
+
+$encrypted = NoEngine::pass('password',$key); //returns encrypted password
+//NOTE: key parameter is optional
+
+```
