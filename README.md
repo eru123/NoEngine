@@ -1,3 +1,6 @@
+# [DISCONTINUED]
+This Project is discontinued due to lack of access on the required resources.
+
 # NoEngine
 General Purpose PHP Libary
 
