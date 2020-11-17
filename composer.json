@@ -2,9 +2,7 @@
     "name": "eru123/noengine",
     "description": "General Purpose PHP Library",
     "type": "library",
-    "require": {
-        "php": "^7.2"
-    },
+    "require": {},
     "license": "MIT",
     "authors": [
         {

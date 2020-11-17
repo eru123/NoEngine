@@ -53,7 +53,7 @@ class Browser {
 		}
 	}
 
-	public function isMobile() {
+	public function mobile() {
 		return $this->isMobile;
 	}
 
