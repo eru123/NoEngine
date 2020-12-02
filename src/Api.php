@@ -64,7 +64,7 @@ class Api {
 		header('Content-Type: application/json');
 		echo json_encode($a);
 	}
-	public function respond(array $res, array $default = []) : void {
+	public static function respond(array $res, array $default = []) : void {
 		if (count($res) <= 0)
 			$res = $default;
 
