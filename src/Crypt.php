@@ -1,6 +1,6 @@
 <?php
 
-namespace NoEngine;
+namespace eru123\NoEngine;
 
 class Crypt {
 	public static function crypt(string $str, string $key) : string {

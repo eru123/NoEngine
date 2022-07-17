@@ -2,7 +2,6 @@
     "name": "eru123/noengine",
     "description": "General Purpose PHP Library",
     "type": "library",
-    "require": {},
     "license": "MIT",
     "authors": [
         {
@@ -10,10 +9,9 @@
             "email": "yeoligoakino@gmail.com"
         }
     ],
-    "autoload" : {
-        "psr-4":{
-            "NoEngine\\":"src/"
+    "autoload": {
+        "psr-4": {
+            "eru123\\NoEngine\\": "src/"
         }
     }
 }
-

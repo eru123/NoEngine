@@ -1,6 +1,6 @@
 <?php
 
-namespace NoEngine;
+namespace eru123\NoEngine;
 
 class MySQL {
     private $pdo;
@@ -14,9 +14,9 @@ class MySQL {
         $name  = (string) @$config["db_name"];
 
         $this->schema = (array) @$config["db_schema"];
-
         $this->pdo = self::connect($user,$pass,$host,$name);
     }
+
     final public function connect(string $user, string $pass, string $host, string $db) : object {
         $dsn = "mysql:host=$host;dbname=$db";
 		$pdo = new \PDO($dsn, $user,$pass);
