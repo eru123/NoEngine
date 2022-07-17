@@ -13,5 +13,8 @@
         "psr-4": {
             "eru123\\NoEngine\\": "src/"
         }
+    },
+    "require": {
+        "php": ">=7.4"
     }
 }
