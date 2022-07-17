@@ -11,7 +11,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "eru123\\NoEngine\\": "src/"
+            "eru123\\NoEngine\\": "src/",
+            "eru123\\NoEngine\\Database\\": "src/Database/"
         }
     },
     "require": {
