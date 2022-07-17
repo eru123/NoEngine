@@ -8,5 +8,5 @@ Install with Composer
 composer require eru123/noengine
 ```
 
-### Documentation
+# Documentation
 Please see [Wiki](https://github.com/eru123/NoEngine/wiki)
