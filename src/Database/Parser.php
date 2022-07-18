@@ -34,7 +34,7 @@ class Parser
                             $values = array_merge($values, $nv->toArray());
                         } else if ($nv->size() == 1) {
                             $where[] = "{$k} = ?";
-                            $values[] = $nv->toArray();
+                            $values = array_merge($values, $nv->toArray());
                         }
                     } else if ($nv->is_object()) {
                         foreach ($nv as $kk => $vv) {
