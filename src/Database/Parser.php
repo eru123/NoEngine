@@ -599,7 +599,7 @@ class Parser
     {
         $sth = self::pdo_prepare($pdo, $query);
         $sth->execute();
-        return new $sth->fetchAll(PDO::FETCH_ASSOC);
+        return $sth->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
