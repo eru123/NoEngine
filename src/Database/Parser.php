@@ -5,7 +5,8 @@ namespace eru123\NoEngine\Database;
 use eru123\NoEngine\ListType;
 use \Exception;
 
-class Parser {
+class Parser
+{
     private static function parse_where(array ...$args)
     {
         $where = ["WHERE ("];
@@ -38,7 +39,7 @@ class Parser {
                             } else if (in_array($kk, ['>', 'GT'])) {
                                 $where[] = "{$k} > ?";
                                 $values[] = $vv;
-                            } else if (in_array($kk, ['>=', 'GTE'])){
+                            } else if (in_array($kk, ['>=', 'GTE'])) {
                                 $where[] = "{$k} >= ?";
                                 $values[] = $vv;
                             } else if (in_array($kk, ['<', 'LT'])) {
@@ -47,7 +48,7 @@ class Parser {
                             } else if (in_array($kk, ['<=', 'LTE'])) {
                                 $where[] = "{$k} <= ?";
                                 $values[] = $vv;
-                            } else if (in_array($kk, ['!=', '<>','NOT'])) {
+                            } else if (in_array($kk, ['!=', '<>', 'NOT'])) {
                                 $where[] = "{$k} != ?";
                                 $values[] = $vv;
                             } else if (in_array($kk, ['BETWEEN', 'BETWEEN_INCLUSIVE']) && is_array($vv) && count($vv) >= 2) {
@@ -64,7 +65,7 @@ class Parser {
                             } else if (in_array($kk, ['NOT_LIKE', 'NOT_LIKE_INCLUSIVE'])) {
                                 $where[] = "{$k} NOT LIKE %?%";
                                 $values[] = $vv;
-                            } else if (in_array($kk, ['==','EQUAL','IS'])){
+                            } else if (in_array($kk, ['==', 'EQUAL', 'IS'])) {
                                 $where[] = "{$k} = ?";
                                 $values[] = $vv;
                             } else {
@@ -96,24 +97,25 @@ class Parser {
         ];
     }
 
-    private static function if_valid_parse_call($query, array &$sql ,array &$values = NULL, string $parse = NULL, $error = "Invalid"){
-        if(!$query) return;
+    private static function if_valid_parse_call($query, array &$sql, array &$values = NULL, string $parse = NULL, $error = "Invalid")
+    {
+        if (!$query) return;
 
-        $callError = is_array($error) ? function() use ($error) {
+        $callError = is_array($error) ? function () use ($error) {
             throw new Exception(...$error);
-        } : function (){
+        } : function () use ($error) {
             throw new Exception($error);
         };
 
-        if(is_string($query)){
+        if (is_string($query)) {
             $sql[] = $query;
-        } else if(is_array($query)){
+        } else if (is_array($query)) {
             $query2 = new ListType($query);
-            if($query2->is_array()){
+            if ($query2->is_array()) {
                 $tmp = call_user_func_array([self::class, $parse], $query);
                 $sql[] = $tmp['query'];
                 $values = array_merge($values, $tmp['values']);
-            } else if($query2->is_object()){
+            } else if ($query2->is_object()) {
                 $tmp = call_user_func_array([self::class, $parse], [$query]);
                 $sql[] = $tmp['query'];
                 $values = array_merge($values, $tmp['values']);
@@ -125,16 +127,17 @@ class Parser {
         }
     }
 
-    private static function if_valid_parse($query,array &$sql,array &$values,array $parse, $error){
-        if(!$query) return;
+    private static function if_valid_parse($query, array &$sql, array &$values, array $parse, $error)
+    {
+        if (!$query) return;
 
-        $callError = is_array($error) ? function() use ($error) {
+        $callError = is_array($error) ? function () use ($error) {
             throw new Exception(...$error);
-        } : function (){
+        } : function () use ($error) {
             throw new Exception($error);
         };
 
-        if (is_string($squery)){
+        if (is_string($query)) {
             $sql[] = $query;
         } else if (is_array($parse)) {
             $sql[] = $parse['query'];
@@ -144,11 +147,12 @@ class Parser {
         }
     }
 
-    private static function parse_join(array ...$args){
+    private static function parse_join(array ...$args)
+    {
         $sql = [];
         $values = [];
-        foreach($args as $join){
-            if(!is_array($join)){
+        foreach ($args as $join) {
+            if (!is_array($join)) {
                 throw new Exception("Invalid join");
             }
 
@@ -189,39 +193,40 @@ class Parser {
         ];
     }
 
-    final public static function parse_insert(array $query, bool $bind = false){
+    final public static function parse_insert(array $query, bool $bind = false)
+    {
         $table = @$query['insert'] ?? @$query['table'];
         $data = @$query['data'] ?? @$query['values'];
 
-        if(!$table || !$data){
+        if (!$table || !$data) {
             throw new Exception("Invalid INSERT query: missing table or data");
         }
 
         $sql = ["INSERT INTO $table"];
         $values = [];
 
-        if(is_string($data)){
+        if (is_string($data)) {
             $sql[] = $data;
         } else if (is_array($data)) {
             $query = new ListType($data);
-            if($query->is_array()){
+            if ($query->is_array()) {
                 $fields = [];
-                $query->map(function($index, $row) use (&$fields){
-                    foreach($row as $k => $v){
-                        if(!is_string($k)){
+                $query->map(function ($index, $row) use (&$fields) {
+                    foreach ($row as $k => $v) {
+                        if (!is_string($k)) {
                             throw new Exception("Invalid INSERT query: Invalid field name");
                         }
-    
-                        if(!in_array($k, $fields)){
+
+                        if (!in_array($k, $fields)) {
                             $fields[] = $k;
-                        }  
+                        }
                     }
                 });
                 $sql[] = "(" . implode(', ', $fields) . ") VALUES";
                 $rows = [];
-                $query->map(function($index, $row) use ($fields, &$values, &$rows){
+                $query->map(function ($index, $row) use ($fields, &$values, &$rows) {
                     $tmp = [];
-                    foreach($fields as $col){
+                    foreach ($fields as $col) {
                         $tmp[$col] = @$row[$col];
                     }
                     $rows[] = "(" . (new ListType($tmp))->mask('?')->implode(', ') . ")";
@@ -249,17 +254,18 @@ class Parser {
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
-    final public static function parse_update(array $query, bool $bind = false){
+    final public static function parse_update(array $query, bool $bind = false)
+    {
         $table = @$query['update'] ?? @$query['table'];
         $data = @$query['data'] ?? @$query['values'];
         $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
 
-        if(!$table || !$data || !$where){
+        if (!$table || !$data || !$where) {
             throw new Exception("Invalid UPDATE query: missing table, data or where");
         }
 
         $data = new ListType($data);
-        if(!$data->is_object()){
+        if (!$data->is_object()) {
             throw new Exception("Invalid UPDATE query: data must be an array with key-value pairs");
         }
 
@@ -268,14 +274,14 @@ class Parser {
 
         $sql[] = "SET";
         $updated = [];
-        $data->map(function($key, $value) use (&$updated, &$values){
+        $data->map(function ($key, $value) use (&$updated, &$values) {
             $updated[] = "{$key} = ?";
             $values[] = $value;
         });
         $sql[] = implode(', ', $updated);
-        
-        if($where) {
-            self::if_valid_parse_call($where, $sql, $values, 'parse_where', 'Invalid Query: ON Clause',"Invalid UPDATE query: where must be an array or object");
+
+        if ($where) {
+            self::if_valid_parse_call($where, $sql, $values, 'parse_where', 'Invalid Query: ON Clause', "Invalid UPDATE query: where must be an array or object");
         }
 
         $res = [
@@ -286,21 +292,22 @@ class Parser {
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
-    final public static function parse_delete(array $query, bool $bind = false){
+    final public static function parse_delete(array $query, bool $bind = false)
+    {
         $table = @$query['delete'] ?? @$query['table'];
         $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
 
-        if(!$table || !$where){
+        if (!$table || !$where) {
             throw new Exception("Invalid DELETE query: missing table or where");
         }
 
         $sql = ["DELETE FROM $table"];
         $values = [];
 
-        if($where) {
+        if ($where) {
             self::if_valid_parse_call($where, $sql, $values, 'parse_where', "Invalid DELETE query: where must be an array or object");
         }
-        
+
         $res = [
             'query' => implode(' ', $sql),
             'values' => $values
@@ -309,7 +316,8 @@ class Parser {
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
-    final public static function parse_select(array $query, bool $bind = false){
+    final public static function parse_select(array $query, bool $bind = false)
+    {
         $table = @$query['from'] ?? @$query['table'];
         $alias = @$query['alias'] ?? @$query['as'];
         $select = @$query['select'] ?? (@$query['read'] ?? @$query['find']);
@@ -323,15 +331,15 @@ class Parser {
         $sql = ["SELECT"];
         $values = [];
 
-        if(is_string($select)){
+        if (is_string($select)) {
             $sql[] = trim($select);
-        } else if(is_array($select)){
+        } else if (is_array($select)) {
             $select2 = new ListType($select);
-            if($select2->is_array()){
+            if ($select2->is_array()) {
                 $sql[] = implode(', ', $select);
-            } else if($select2->is_object()){
+            } else if ($select2->is_object()) {
                 $selects = [];
-                foreach($select as $field => $field_alias){
+                foreach ($select as $field => $field_alias) {
                     if (is_string($field)) {
                         $selects[] = "{$field} AS {$field_alias}";
                     } else {
@@ -346,25 +354,25 @@ class Parser {
             $sql[] = '*';
         }
 
-        if(!$table){
+        if (!$table) {
             throw new Exception("Invalid SELECT query: missing table");
         }
 
-        if(is_string($table)){
+        if (is_string($table)) {
             $sql[] = "FROM {$table}";
-            if($alias){
+            if ($alias) {
                 $sql[] = "AS $alias";
             }
-        } else if(is_array($table)){
+        } else if (is_array($table)) {
             $sql[] = "FROM";
             $table2 = new ListType($table);
-            if($table2->is_array() && $table2->size() >= 2){
-                $sql[] = $table[0]." AS ".$table[1];
-            } else if($table2->is_object()){
-                foreach($table as $key => $value){
-                    if(is_int($key) && is_string($value)) {
+            if ($table2->is_array() && $table2->size() >= 2) {
+                $sql[] = $table[0] . " AS " . $table[1];
+            } else if ($table2->is_object()) {
+                foreach ($table as $key => $value) {
+                    if (is_int($key) && is_string($value)) {
                         $sql[] = "$value";
-                    } else if(is_string($key) && is_string($value)){
+                    } else if (is_string($key) && is_string($value)) {
                         $sql[] = "$key AS $value";
                     } else {
                         throw new Exception("Invalid SELECT query: table name or alias must be a string (table_name => alias)");
@@ -381,7 +389,7 @@ class Parser {
         self::if_valid_parse_call($join, $sql, $values, 'parse_join', "Invalid SELECT query: join must be a string or an array or object");
         self::if_valid_parse_call($where, $sql, $values, 'parse_where', "Invalid SELECT query: where must be a string or an array or object");
 
-        if($group){
+        if ($group) {
             $sql[] = "GROUP BY";
             if (is_string($group)) {
                 $sql[] = $group;
@@ -403,26 +411,26 @@ class Parser {
             }
         }
 
-        if($order){
+        if ($order) {
             $sql[] = "ORDER BY";
             if (is_string($order)) {
                 $sql[] = $order;
             } else if (is_array($order)) {
                 $order2 = new ListType($order);
                 if ($order2->is_array()) {
-                    $sql[] = implode('ASC, ', $order)." ASC";
+                    $sql[] = implode('ASC, ', $order) . " ASC";
                 } else if ($order2->is_object()) {
                     $orders = [];
                     foreach ($order as $field => $direction) {
-                        if(is_bool($direction)) {
+                        if (is_bool($direction)) {
                             $direction = $direction ? 'ASC' : 'DESC';
                         } else if (is_string($direction)) {
                             $direction = trim($direction);
                             $direction = strtoupper($direction);
-                            if($direction != 'ASC' && $direction != 'DESC'){
+                            if ($direction != 'ASC' && $direction != 'DESC') {
                                 throw new Exception("Invalid SELECT query: order direction must be ASC or DESC");
                             }
-                        } else if(!is_string($direction)) {
+                        } else if (!is_string($direction)) {
                             throw new Exception("Invalid SELECT query: order direction must be a string or boolean");
                         }
                         $orders[] = "{$field} {$direction}";
@@ -436,12 +444,12 @@ class Parser {
             }
         }
 
-        if($limit){
+        if ($limit) {
             $limit = (int) $limit;
             $sql[] = "LIMIT {$limit}";
         }
 
-        if($offset){
+        if ($offset) {
             $offset = (int) $offset;
             $sql[] = "OFFSET {$offset}";
         }
@@ -454,7 +462,8 @@ class Parser {
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
-    public static function parse(array $query, bool $bind = false){
+    public static function parse(array $query, bool $bind = false)
+    {
         $action = @$query['action'];
         $action = trim($action);
         $action = strtoupper($action);
@@ -462,20 +471,21 @@ class Parser {
         $insert = @$query['insert'];
         $update = @$query['update'];
 
-        if($delete || $action == "DELETE"){
+        if ($delete || $action == "DELETE") {
             return self::parse_delete($query, $bind);
-        } else if($insert || $action == "INSERT"){
+        } else if ($insert || $action == "INSERT") {
             return self::parse_insert($query, $bind);
-        } else if($update || $action == "UPDATE"){
+        } else if ($update || $action == "UPDATE") {
             return self::parse_update($query, $bind);
         }
-        
+
         return self::parse_select($query, $bind);
     }
 
-    public static function bind($query, $values){
-        foreach($values as $key => $value){
-            if (is_string($value)){
+    public static function bind($query, $values)
+    {
+        foreach ($values as $key => $value) {
+            if (is_string($value)) {
                 $value = str_replace('"', '\"', $value);
                 $values[$key] = "\"{$value}\"";
             } else {
