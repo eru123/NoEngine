@@ -2,30 +2,34 @@
 
 namespace eru123\NoEngine;
 
-class MySQL {
-    private $pdo;
-    private $tb;
-    private $schema;
-    
-    public function __construct(array $config) {
-        $user  = (string) @$config["db_user"];
-        $pass  = (string) @$config["db_pass"];
-        $host  = (string) @$config["db_host"];
-        $name  = (string) @$config["db_name"];
+class MySQL
+{
+	private $pdo;
+	private $tb;
+	private $schema;
 
-        $this->schema = (array) @$config["db_schema"];
-        $this->pdo = self::connect($user,$pass,$host,$name);
-    }
+	public function __construct(array $config)
+	{
+		$user  = (string) @$config["db_user"];
+		$pass  = (string) @$config["db_pass"];
+		$host  = (string) @$config["db_host"];
+		$name  = (string) @$config["db_name"];
 
-    final public function connect(string $user, string $pass, string $host, string $db) : object {
-        $dsn = "mysql:host=$host;dbname=$db";
-		$pdo = new \PDO($dsn, $user,$pass);
-        $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-        return $pdo;
-    }
-    final public function setupSchema(array $schema = []): bool{
+		$this->schema = (array) @$config["db_schema"];
+		$this->pdo = self::connect($user, $pass, $host, $name);
+	}
+
+	final public function connect(string $user, string $pass, string $host, string $db): object
+	{
+		$dsn = "mysql:host=$host;dbname=$db";
+		$pdo = new \PDO($dsn, $user, $pass);
+		$pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
+		return $pdo;
+	}
+	final public function setupSchema(array $schema = []): bool
+	{
 		// SCHEMA - { table: [column,...]}
-        $schema = $schema ?? $this->schema;
+		$schema = $schema ?? $this->schema;
 		$query = "";
 
 		foreach ($schema as $table => $columns) {
@@ -50,10 +54,11 @@ class MySQL {
 		($this->pdo)->exec($query);
 		return TRUE;
 	}
-	final public function forceSetupSchema(array $schema = []): bool {
+	final public function forceSetupSchema(array $schema = []): bool
+	{
 		// SCHEMA - { table: [column,...]}
 
-        $schema = $schema ?? $this->schema;
+		$schema = $schema ?? $this->schema;
 		$query = "";
 
 		foreach ($schema as $table => $columns) {
@@ -78,12 +83,14 @@ class MySQL {
 
 		($this->pdo)->exec($query);
 		return TRUE;
-    }
-    public function table(string $table): void{
+	}
+	public function table(string $table): void
+	{
 
 		$this->tb = $table;
 	}
-	public function createData(array $data): bool{
+	public function createData(array $data): bool
+	{
 		// DATA - {key: value}
 		$tb = $this->tb;
 		$keys = "";
@@ -107,14 +114,16 @@ class MySQL {
 		}
 		return false;
 	}
-	public function createUniqueData(string $key, array $data): bool {
+	public function createUniqueData(string $key, array $data): bool
+	{
 		if (isset($data[$key]) && count($this->readData([$key => $data[$key]])) > 0) {
 			return FALSE;
 		}
 
 		return $this->createData($data);
 	}
-	public function readData(array $find, array $advance = []): array{
+	public function readData(array $find, array $advance = []): array
+	{
 
 		// find - ["name" => "jericho"]
 		$tb = $this->tb;
@@ -148,7 +157,8 @@ class MySQL {
 
 		return $q->fetchAll() ?? [];
 	}
-	public function readAllData(array $advance = []): array{
+	public function readAllData(array $advance = []): array
+	{
 		$tb = $this->tb;
 
 		$order = $limit = $offset = "";
@@ -173,7 +183,8 @@ class MySQL {
 
 		return $q->fetchAll() ?? [];
 	}
-	public function updateData(array $find, array $data): bool{
+	public function updateData(array $find, array $data): bool
+	{
 		// Find - [key => value]
 		// Data = [key => value]
 		$tb = $this->tb;
@@ -205,7 +216,8 @@ class MySQL {
 
 		return FALSE;
 	}
-	public function deleteData(array $find): bool{
+	public function deleteData(array $find): bool
+	{
 		// Find - [key => value]
 
 		$tb = $this->tb;
