@@ -2,20 +2,23 @@
 
 namespace eru123\NoEngine;
 
-class Core {
-	public function time_diff(int $od): int {
-
+class Core
+{
+	public function time_diff(int $od): int
+	{
 		return time() - $od;
 	}
-	public function get_date_alt(): int {
-
+	public function get_date_alt(): int
+	{
 		return date("YmdHis");
 	}
-	public function get_date(string $timezone = "Asia/Manila"): string{
+	public function get_date(string $timezone = "Asia/Manila"): string
+	{
 		date_default_timezone_set($timezone);
 		return (string) date(DATE_ATOM);
 	}
-	public function get_display_date(string $date = ""): string{
+	public function get_display_date(string $date = ""): string
+	{
 		$date = trim(str_replace("  ", " ", $date));
 		if ($date == "") {
 			$date = self::get_date();
@@ -24,7 +27,8 @@ class Core {
 		$res = date_format(date_create($date), "F d, Y");
 		return $res;
 	}
-	public function gravatar(string $email, int $size = 100, string $default = ""): string{
+	public function gravatar(string $email, int $size = 100, string $default = ""): string
+	{
 		$email = trim($email); // "MyEmailAddress@example.com"
 		$email = strtolower($email); // "myemailaddress@example.com"
 		$hash = md5($email);
@@ -35,52 +39,55 @@ class Core {
 
 		return "https://www.gravatar.com/avatar/$hash?s=$size$d";
 	}
-	public function valid_alias(string $name): bool {
+	public function valid_alias(string $name): bool
+	{
 		if (!preg_match("/[^a-zA-Z0-9._-]/", $name)) {
 			return TRUE;
 		}
 		return FALSE;
 	}
-	public function valid_name(string $name): bool {
+	public function valid_name(string $name): bool
+	{
 		if (!preg_match("/[^a-zA-Z. -]/", $name)) {
 			return TRUE;
 		}
 		return FALSE;
 	}
-	public function valid_mobile(string $phone) : bool {
-		
-		$formatted = str_replace(" ","",$phone);
-		$formatted = str_replace("-","",$formatted);
-		$formatted = str_replace("+","",$formatted);
+	public function valid_mobile(string $phone): bool
+	{
 
+		$formatted = str_replace(" ", "", $phone);
+		$formatted = str_replace("-", "", $formatted);
+		$formatted = str_replace("+", "", $formatted);
 		return (!preg_match("/[^0-9]/", $formatted) && strlen($formatted) >= 10 && strlen($formatted) <= 15) ?? FALSE;
-		
-
-		return FALSE;
 	}
-	public static function se(string $str, $l = 1) {
+	public static function se(string $str, $l = 1)
+	{
 		for ($i = 0; $i < $l; $i++) {
 			$str = base64_encode($str);
 		}
 
 		return $str;
 	}
-	public static function sd(string $str, $l = 1) {
+	public static function sd(string $str, $l = 1)
+	{
 		for ($i = 0; $i < $l; $i++) {
 			$str = base64_decode($str);
 		}
 
 		return $str;
 	}
-	public static function random(string $pass, $k = 'debcoco') {
+	public static function random(string $pass, $k = 'debcoco')
+	{
 		$s = self::se(md5($pass), 3);
 		$s = md5($k . $s . $k);
 		$s = self::se($s, 1);
 		return md5($s);
 	}
-	public static function get_ip() {
+	public static function get_ip()
+	{
 		// check for shared internet/ISP IP
-		if (!empty($_SERVER['HTTP_CLIENT_IP']) && valsidate_ip($_SERVER['HTTP_CLIENT_IP'])) {
+		if (!empty($_SERVER['HTTP_CLIENT_IP']) && self::validate_ip($_SERVER['HTTP_CLIENT_IP'])) {
 			return $_SERVER['HTTP_CLIENT_IP'];
 		}
 
@@ -98,7 +105,6 @@ class Core {
 				if (self::validate_ip($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 					return $_SERVER['HTTP_X_FORWARDED_FOR'];
 				}
-
 			}
 		}
 
@@ -121,7 +127,8 @@ class Core {
 		// return unreliable ip since all else failed
 		return $_SERVER['REMOTE_ADDR'];
 	}
-	public static function validate_ip($ip) {
+	public static function validate_ip($ip)
+	{
 		if (strtolower($ip) === 'unknown') {
 			return false;
 		}
@@ -167,27 +174,30 @@ class Core {
 			if ($ip >= 4294967040) {
 				return false;
 			}
-
 		}
 		return true;
 	}
-	public static function get_request($f) {
+	public static function get_request($f)
+	{
 
 		return ($_REQUEST[$f] ?? false);
 	}
-	public static function validName($name) {
+	public static function validName($name)
+	{
 		if (preg_match("/[^a-zA-Z'. -]/", $name) || strlen($name) < 2 || strlen($name) > 36) {
 			return false;
 		}
 		return true;
 	}
-	public static function validAlias($alias) {
+	public static function validAlias($alias)
+	{
 		if (preg_match("/[^a-zA-Z0-9._-]/", $alias) || strlen($alias) < 3 || strlen($alias) > 36) {
 			return false;
 		}
 		return true;
 	}
-	public static function array_pagination(array $array, int $offset, int $items, bool $invert = false) {
+	public static function array_pagination(array $array, int $offset, int $items, bool $invert = false)
+	{
 		$res = [];
 
 		if ($invert === true) {

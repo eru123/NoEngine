@@ -2,7 +2,8 @@
 
 namespace eru123\NoEngine;
 
-class Browser {
+class Browser
+{
 	protected $accept;
 	protected $userAgent;
 
@@ -27,13 +28,14 @@ class Browser {
 		"generic" => "(kindle|mobile|mmp|midp|o2|pda|pocket|psp|symbian|smartphone|treo|up.browser|up.link|vodafone|wap)"
 	);
 
-	public function __construct() {
-		$this->userAgent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$this->accept    = isset( $_SERVER['HTTP_ACCEPT'] ) ? $_SERVER['HTTP_ACCEPT'] : '';
+	public function __construct()
+	{
+		$this->userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$this->accept    = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
 
-		if (isset($_SERVER['HTTP_X_WAP_PROFILE'])|| isset($_SERVER['HTTP_PROFILE'])) {
+		if (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
 			$this->isMobile = true;
-		} elseif (strpos($this->accept,'text/vnd.wap.wml') > 0 || strpos($this->accept,'application/vnd.wap.xhtml+xml') > 0) {
+		} elseif (strpos($this->accept, 'text/vnd.wap.wml') > 0 || strpos($this->accept, 'application/vnd.wap.xhtml+xml') > 0) {
 			$this->isMobile = true;
 		} else {
 			foreach ($this->devices as $device => $regexp) {
@@ -44,7 +46,8 @@ class Browser {
 		}
 	}
 
-	public function __call($name, $arguments) {
+	public function __call($name, $arguments)
+	{
 		$device = strtolower(substr($name, 2));
 		if ($name == "is" . ucfirst($device)) {
 			return $this->isDevice($device);
@@ -53,11 +56,13 @@ class Browser {
 		}
 	}
 
-	public function mobile() {
+	public function mobile()
+	{
 		return $this->isMobile;
 	}
 
-	protected function isDevice($device) {
+	protected function isDevice($device)
+	{
 		$var    = "is" . ucfirst($device);
 		$return = $this->$var === null ? (bool) preg_match("/" . $this->devices[$device] . "/i", $this->userAgent) : $this->$var;
 
