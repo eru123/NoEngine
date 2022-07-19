@@ -4,9 +4,14 @@ namespace eru123\NoEngine\Database;
 
 use eru123\NoEngine\ListType;
 use \Exception;
+use \PDO;
+use \PDOStatement;
 
 class Parser
-{
+{   
+    /**
+     * Parse Where Clause
+     */
     private static function parse_where(array ...$args)
     {
         $where = ["WHERE ("];
@@ -24,8 +29,13 @@ class Parser
                 } else if (is_array($v)) {
                     $nv = new ListType($v);
                     if ($nv->is_array()) {
-                        $where[] = "{$k} IN ({$nv->mask('?')->implode(', ')})";
-                        $values = array_merge($values, $nv->toArray());
+                        if ($nv->size() > 1) {
+                            $where[] = "{$k} IN ({$nv->mask('?')->implode(', ')})";
+                            $values = array_merge($values, $nv->toArray());
+                        } else if ($nv->size() == 1) {
+                            $where[] = "{$k} = ?";
+                            $values = array_merge($values, $nv->toArray());
+                        }
                     } else if ($nv->is_object()) {
                         foreach ($nv as $kk => $vv) {
                             $kk = strtoupper($kk);
@@ -34,8 +44,13 @@ class Parser
                                 $values[] = $vv;
                             } else if ($kk == "IN" && is_array($vv)) {
                                 $vvv = new ListType($vv);
-                                $where[] = "{$k} IN ({$vvv->mask('?')->implode(', ')})";
-                                $values = array_merge($values, $vv);
+                                if ($vvv->size() > 1) {
+                                    $where[] = "{$k} IN ({$vvv->mask('?')->implode(', ')})";
+                                    $values = array_merge($values, array_values($vv));
+                                } else if ($vvv->size() == 1) {
+                                    $where[] = "{$k} = ?";
+                                    $values = array_merge($values, array_values($vv));
+                                }
                             } else if (in_array($kk, ['>', 'GT'])) {
                                 $where[] = "{$k} > ?";
                                 $values[] = $vv;
@@ -97,6 +112,9 @@ class Parser
         ];
     }
 
+    /**
+     * Parser's arguments handler
+     */
     private static function if_valid_parse_call($query, array &$sql, array &$values = NULL, string $parse = NULL, $error = "Invalid")
     {
         if (!$query) return;
@@ -127,26 +145,9 @@ class Parser
         }
     }
 
-    private static function if_valid_parse($query, array &$sql, array &$values, array $parse, $error)
-    {
-        if (!$query) return;
-
-        $callError = is_array($error) ? function () use ($error) {
-            throw new Exception(...$error);
-        } : function () use ($error) {
-            throw new Exception($error);
-        };
-
-        if (is_string($query)) {
-            $sql[] = $query;
-        } else if (is_array($parse)) {
-            $sql[] = $parse['query'];
-            $values = array_merge($values, $parse['values']);
-        } else {
-            $callError();
-        }
-    }
-
+    /**
+     * Parse join clause
+     */
     private static function parse_join(array ...$args)
     {
         $sql = [];
@@ -193,17 +194,27 @@ class Parser
         ];
     }
 
+    /**
+     * Parse Insert Query
+     */
     final public static function parse_insert(array $query, bool $bind = false)
     {
+        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
         $table = @$query['insert'] ?? @$query['table'];
         $data = @$query['data'] ?? @$query['values'];
+
+        $sql = [];
+        $values = [];
+
+        if ($use) {
+            $sql[] = "USE $use;";
+        }
 
         if (!$table || !$data) {
             throw new Exception("Invalid INSERT query: missing table or data");
         }
 
-        $sql = ["INSERT INTO $table"];
-        $values = [];
+        $sql[] = "INSERT INTO {$table}";
 
         if (is_string($data)) {
             $sql[] = $data;
@@ -254,11 +265,22 @@ class Parser
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
+    /**
+     * Parse update Query
+     */
     final public static function parse_update(array $query, bool $bind = false)
-    {
+    {   
+        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
         $table = @$query['update'] ?? @$query['table'];
         $data = @$query['data'] ?? @$query['values'];
         $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
+
+        $sql = [];
+        $values = [];
+
+        if ($use) {
+            $sql[] = "USE $use;";
+        }
 
         if (!$table || !$data || !$where) {
             throw new Exception("Invalid UPDATE query: missing table, data or where");
@@ -269,10 +291,8 @@ class Parser
             throw new Exception("Invalid UPDATE query: data must be an array with key-value pairs");
         }
 
-        $sql = ["UPDATE $table"];
-        $values = [];
+        $sql[] = "UPDATE {$table} SET";
 
-        $sql[] = "SET";
         $updated = [];
         $data->map(function ($key, $value) use (&$updated, &$values) {
             $updated[] = "{$key} = ?";
@@ -292,17 +312,27 @@ class Parser
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
+    /**
+     * Parse delete query
+     */
     final public static function parse_delete(array $query, bool $bind = false)
-    {
+    {   
+        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
         $table = @$query['delete'] ?? @$query['table'];
         $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
+
+        $sql = [];
+        $values = [];
+
+        if ($use) {
+            $sql[] = "USE $use;";
+        }
 
         if (!$table || !$where) {
             throw new Exception("Invalid DELETE query: missing table or where");
         }
 
-        $sql = ["DELETE FROM $table"];
-        $values = [];
+        $sql = "DELETE FROM {$table}";
 
         if ($where) {
             self::if_valid_parse_call($where, $sql, $values, 'parse_where', "Invalid DELETE query: where must be an array or object");
@@ -316,8 +346,12 @@ class Parser
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
+    /**
+     * Parse select query
+     */
     final public static function parse_select(array $query, bool $bind = false)
-    {
+    {   
+        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
         $table = @$query['from'] ?? @$query['table'];
         $alias = @$query['alias'] ?? @$query['as'];
         $select = @$query['select'] ?? (@$query['read'] ?? @$query['find']);
@@ -328,8 +362,14 @@ class Parser
         $group = @$query['group'] ?? @$query['group_by'];
         $join = @$query['join'] ?? @$query['join_by'];
 
-        $sql = ["SELECT"];
+        $sql = [];
         $values = [];
+
+        if ($use) {
+            $sql[] = "USE $use;";
+        }
+
+        $sql[] = "SELECT";
 
         if (is_string($select)) {
             $sql[] = trim($select);
@@ -462,6 +502,9 @@ class Parser
         return $bind ? self::bind($res['query'], $res['values']) : $res;
     }
 
+    /**
+     * Parse query
+     */
     public static function parse(array $query, bool $bind = false)
     {
         $action = @$query['action'];
@@ -482,6 +525,9 @@ class Parser
         return self::parse_select($query, $bind);
     }
 
+    /**
+     * Bind array values to a query with question-mark (?) placeholders.
+     */
     public static function bind($query, $values)
     {
         foreach ($values as $key => $value) {
