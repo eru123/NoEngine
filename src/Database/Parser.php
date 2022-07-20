@@ -92,7 +92,7 @@ class Parser
                             } else if (in_array($kk, ['NOT_LIKE', 'NOT_LIKE_INCLUSIVE'])) {
                                 $where[] = "{$k} NOT LIKE %?%";
                                 $values[] = $vv;
-                            } else if (in_array($kk, ['==', 'EQUAL', 'IS'])) {
+                            } else if (in_array($kk, ['==', 'EQUAL', 'IS', '='])) {
                                 $where[] = "{$k} = ?";
                                 $values[] = $vv;
                             } else {
