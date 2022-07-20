@@ -8,7 +8,19 @@ use \PDO;
 use \PDOStatement;
 
 class Parser
-{   
+{
+    const keys_use      = ['use', 'db', 'database'];
+    const keys_table    = ['from', 'table'];
+    const keys_alias    = ['alias', 'as'];
+    const keys_select   = ['select', 'read', 'find'];
+    const keys_where    = ['where', 'condition', 'conditions'];
+    const keys_order    = ['order', 'order_by'];
+    const keys_limit    = ['limit', 'limit_by'];
+    const keys_offset   = ['offset', 'offset_by'];
+    const keys_group    = ['group', 'group_by'];
+    const keys_join     = ['join', 'join_by'];
+    const keys_data     = ['data', 'values'];
+
     /**
      * Parse Where Clause
      */
@@ -148,9 +160,10 @@ class Parser
     /**
      * Get table query
      */
-    private static function param_get(array &$args, array $keys){
-        foreach($keys as $key) {
-            if(@$args[$key]) {
+    private static function param_get(array &$args, array $keys)
+    {
+        foreach ($keys as $key) {
+            if (@$args[$key]) {
                 return $args[$key];
             }
         }
@@ -211,9 +224,9 @@ class Parser
      */
     final public static function parse_insert(array $query, bool $bind = false)
     {
-        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
-        $table = @$query['insert'] ?? @$query['table'];
-        $data = @$query['data'] ?? @$query['values'];
+        $use    = self::param_get($query, self::keys_use);
+        $table  = self::param_get($query, self::keys_table);
+        $data   = self::param_get($query, self::keys_data);
 
         $sql = [];
         $values = [];
@@ -281,11 +294,11 @@ class Parser
      * Parse update Query
      */
     final public static function parse_update(array $query, bool $bind = false)
-    {   
-        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
-        $table = @$query['update'] ?? @$query['table'];
-        $data = @$query['data'] ?? @$query['values'];
-        $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
+    {
+        $use    = self::param_get($query, self::keys_use);
+        $table  = self::param_get($query, self::keys_table);
+        $data   = self::param_get($query, self::keys_data);
+        $where  = self::param_get($query, self::keys_where);
 
         $sql = [];
         $values = [];
@@ -328,10 +341,10 @@ class Parser
      * Parse delete query
      */
     final public static function parse_delete(array $query, bool $bind = false)
-    {   
-        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
-        $table = @$query['delete'] ?? @$query['table'];
-        $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
+    {
+        $use    = self::param_get($query, self::keys_use);
+        $table  = self::param_get($query, self::keys_table);
+        $where  = self::param_get($query, self::keys_where);
 
         $sql = [];
         $values = [];
@@ -362,19 +375,19 @@ class Parser
      * Parse select query
      */
     final public static function parse_select(array $query, bool $bind = false)
-    {   
-        $use = @$query['use'] ?? (@$query['db'] ?? @$query['database']);
-        $table = @$query['from'] ?? @$query['table'];
-        $alias = @$query['alias'] ?? @$query['as'];
-        $select = @$query['select'] ?? (@$query['read'] ?? @$query['find']);
-        $where = @$query['where'] ?? (@$query['condition'] ?? @$query['conditions']);
-        $order = @$query['order'] ?? @$query['order_by'];
-        $limit = @$query['limit'] ?? @$query['limit_by'];
-        $offset = @$query['offset'] ?? @$query['offset_by'];
-        $group = @$query['group'] ?? @$query['group_by'];
-        $join = @$query['join'] ?? @$query['join_by'];
+    {
+        $use    = self::param_get($query, self::keys_use);
+        $table  = self::param_get($query, self::keys_table);
+        $alias  = self::param_get($query, self::keys_alias);
+        $select = self::param_get($query, self::keys_select);
+        $where  = self::param_get($query, self::keys_where);
+        $order  = self::param_get($query, self::keys_order);
+        $limit  = self::param_get($query, self::keys_limit);
+        $offset = self::param_get($query, self::keys_offset);
+        $group  = self::param_get($query, self::keys_group);
+        $join   = self::param_get($query, self::keys_join);
 
-        $sql = [];
+        $sql    = [];
         $values = [];
 
         if ($use) {
