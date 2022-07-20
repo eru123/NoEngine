@@ -23,7 +23,6 @@ class XPDOStatement extends PDOStatement
      */
     public static function get_pdo_data_type($type)
     {
-        $type = strtolower($type);
         if (is_int($type)) {
             return PDO::PARAM_INT;
         } else if (is_bool($type)) {
