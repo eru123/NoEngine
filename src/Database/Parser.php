@@ -344,7 +344,7 @@ class Parser
             throw new Exception("Invalid DELETE query: missing table or where");
         }
 
-        $sql = "DELETE FROM {$table}";
+        $sql[] = "DELETE FROM {$table}";
 
         if ($where) {
             self::if_valid_parse_call($where, $sql, $values, 'parse_where', "Invalid DELETE query: where must be an array or object");
