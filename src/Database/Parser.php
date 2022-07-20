@@ -10,7 +10,7 @@ use \PDOStatement;
 class Parser
 {
     const keys_use      = ['use', 'db', 'database'];
-    const keys_table    = ['from', 'table'];
+    const keys_table    = ['from', 'table', 'delete', 'insert', 'update'];
     const keys_alias    = ['alias', 'as'];
     const keys_select   = ['select', 'read', 'find'];
     const keys_where    = ['where', 'condition', 'conditions'];
