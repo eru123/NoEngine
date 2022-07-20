@@ -146,6 +146,18 @@ class Parser
     }
 
     /**
+     * Get table query
+     */
+    private static function param_get(array &$args, array $keys){
+        foreach($keys as $key) {
+            if(@$args[$key]) {
+                return $args[$key];
+            }
+        }
+        return null;
+    }
+
+    /**
      * Parse join clause
      */
     private static function parse_join(array ...$args)
