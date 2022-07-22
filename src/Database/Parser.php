@@ -239,7 +239,13 @@ class Parser
             throw new Exception("Invalid INSERT query: missing table or data");
         }
 
-        $sql[] = "INSERT INTO {$table}";
+        $sql[] = "INSERT";
+
+        if (@$query['ignore'] === true) {
+            $sql[] = "IGNORE";
+        }
+
+        $sql[] = "INTO {$table}";
 
         if (is_string($data)) {
             $sql[] = $data;
